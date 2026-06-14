@@ -9,6 +9,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -22,6 +23,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemNamePlugin extends JavaPlugin implements Listener {
+
+    private static final double VIEW_DISTANCE = 32.0;
+    private static final double VIEW_DISTANCE_SQUARED = VIEW_DISTANCE * VIEW_DISTANCE;
 
     private final Map<UUID, UUID> itemToNameTag = new ConcurrentHashMap<>();
     private final Map<UUID, UUID> nameTagToItem = new ConcurrentHashMap<>();
@@ -83,6 +87,9 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
 
                     // Refresh name in case stacks merged and the amount changed
                     stand.customName(getDisplayName(item));
+
+                    // Hide label when no player is nearby to reduce clutter
+                    stand.setCustomNameVisible(isNearAnyPlayer(item));
                 }
             }
         };
@@ -109,7 +116,7 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
         stand.setGravity(false);
         stand.setCanPickupItems(false);
         stand.customName(displayName);
-        stand.setCustomNameVisible(true);
+        stand.setCustomNameVisible(isNearAnyPlayer(item));
         stand.setInvulnerable(true);
         stand.setCollidable(false);
         stand.setPersistent(false);
@@ -137,6 +144,19 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
                 entity.remove();
             }
         }
+    }
+
+    private boolean isNearAnyPlayer(Item item) {
+        Location itemLoc = item.getLocation();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getWorld() != itemLoc.getWorld()) {
+                continue;
+            }
+            if (player.getLocation().distanceSquared(itemLoc) <= VIEW_DISTANCE_SQUARED) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Component getDisplayName(Item item) {
