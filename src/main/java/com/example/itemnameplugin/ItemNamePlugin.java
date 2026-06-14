@@ -182,6 +182,9 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
         NamedTextColor amountColor;
         if (max == 1) {
             amountColor = NamedTextColor.WHITE;
+        } else if (amount > max) {
+            // Oversized stack (e.g. plugin/modded stacks above normal max)
+            amountColor = NamedTextColor.GOLD;
         } else if (ratio <= 0.25) {
             amountColor = NamedTextColor.RED;
         } else if (ratio <= 0.5) {
