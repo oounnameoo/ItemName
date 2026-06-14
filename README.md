@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight Paper plugin that shows an item's **display name and stack amount** as a floating label above dropped items on the ground.
+A lightweight Paper plugin that shows an item's **display name and combined stack amount** as a floating label above dropped items on the ground. Nearby matching items are grouped into a single label.
 
 ---
 
@@ -10,9 +10,10 @@ A lightweight Paper plugin that shows an item's **display name and stack amount*
 
 | Feature | Description |
 |---|---|
-| **Floating item labels** | Dropped items with a custom display name show a visible name tag above them. |
-| **Stack amount** | The label also shows the current stack size with an `x` separator (e.g., `Diamond x64`). Updates automatically if stacks merge. |
-| **Colored amounts** | Amount is color-coded by how full the stack is: red → yellow → green → aqua. |
+| **Floating item labels** | Dropped items show a visible name tag above them. |
+| **Nearby grouping** | Matching items within ~2.5 blocks share a single label with their combined amount. |
+| **Combined amount** | The label shows the total amount of all grouped items (e.g., `Diamond x256`). |
+| **Colored amounts** | Amount is color-coded by how full the stack is: red → yellow → green → aqua; oversized stacks are gold. |
 | **Distance culling** | Name tags are hidden when no player is within 32 blocks, reducing clutter and improving performance. |
 | **Armor-stand based** | Uses an invisible, marker armor stand so the label is smooth and collision-free. |
 | **Automatic cleanup** | Labels are removed when the item is picked up, despawns, or the plugin disables. |
@@ -22,7 +23,7 @@ A lightweight Paper plugin that shows an item's **display name and stack amount*
 
 ## How It Works
 
-When a named item entity spawns in the world, the plugin spawns an invisible armor stand slightly above it and sets the stand's custom name to the item's display name plus its stack amount. A tracker task runs every tick to keep the label positioned above the item and refreshes the amount if stacks merge.
+When a dropped item spawns, the plugin looks for an existing group of matching items within ~2.5 blocks. If found, the item joins that group; otherwise a new group is created with its own invisible armor stand. The stand's name shows the item's display name plus the combined amount of every item in the group. A tracker task runs every tick to keep the label centered above the pile and refreshes the total amount as items are added, picked up, or despawn.
 
 ---
 
