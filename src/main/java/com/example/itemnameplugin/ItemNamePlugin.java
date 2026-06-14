@@ -178,6 +178,6 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
         }
 
         return item.getItemStack().displayName()
-                .append(Component.text(" " + amount, amountColor));
+                .append(Component.text(" x" + amount, amountColor));
     }
 }
