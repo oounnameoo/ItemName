@@ -1,6 +1,7 @@
 package com.example.itemnameplugin;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -79,6 +80,9 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
                             stand.teleport(target);
                         }
                     }
+
+                    // Refresh name in case stacks merged and the amount changed
+                    stand.customName(getDisplayName(item));
                 }
             }
         };
@@ -136,6 +140,7 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
     }
 
     private Component getDisplayName(Item item) {
-        return item.getItemStack().displayName();
+        return item.getItemStack().displayName()
+                .append(Component.text(" x" + item.getItemStack().getAmount(), NamedTextColor.GRAY));
     }
 }
