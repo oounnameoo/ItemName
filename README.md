@@ -11,7 +11,8 @@ A lightweight Paper plugin that shows an item's **display name and stack amount*
 | Feature | Description |
 |---|---|
 | **Floating item labels** | Dropped items with a custom display name show a visible name tag above them. |
-| **Stack amount** | The label also shows the current stack size (e.g., `Diamond x64`). Updates automatically if stacks merge. |
+| **Stack amount** | The label also shows the current stack size without separators (e.g., `Diamond 64`). Updates automatically if stacks merge. |
+| **Colored amounts** | Amount is color-coded by how full the stack is: red → yellow → green → aqua. |
 | **Armor-stand based** | Uses an invisible, marker armor stand so the label is smooth and collision-free. |
 | **Automatic cleanup** | Labels are removed when the item is picked up, despawns, or the plugin disables. |
 | **No configuration needed** | Works out of the box — just drop an item with a name. |

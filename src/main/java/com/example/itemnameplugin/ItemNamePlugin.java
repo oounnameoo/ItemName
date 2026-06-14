@@ -140,7 +140,24 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
     }
 
     private Component getDisplayName(Item item) {
+        int amount = item.getItemStack().getAmount();
+        int max = item.getItemStack().getMaxStackSize();
+        double ratio = max > 0 ? (double) amount / max : 0;
+
+        NamedTextColor amountColor;
+        if (max == 1) {
+            amountColor = NamedTextColor.WHITE;
+        } else if (ratio <= 0.25) {
+            amountColor = NamedTextColor.RED;
+        } else if (ratio <= 0.5) {
+            amountColor = NamedTextColor.YELLOW;
+        } else if (ratio <= 0.75) {
+            amountColor = NamedTextColor.GREEN;
+        } else {
+            amountColor = NamedTextColor.AQUA;
+        }
+
         return item.getItemStack().displayName()
-                .append(Component.text(" x" + item.getItemStack().getAmount(), NamedTextColor.GRAY));
+                .append(Component.text(" " + amount, amountColor));
     }
 }
