@@ -15,6 +15,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -160,8 +162,21 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
     }
 
     private Component getDisplayName(Item item) {
-        int amount = item.getItemStack().getAmount();
-        int max = item.getItemStack().getMaxStackSize();
+        ItemStack stack = item.getItemStack();
+        ItemMeta meta = stack.getItemMeta();
+
+        // Use the custom name if the player set one; otherwise use the plain
+        // translated item name (e.g. "Torch") to avoid brackets from the
+        // default hover/display name.
+        Component name;
+        if (meta.hasDisplayName()) {
+            name = meta.displayName();
+        } else {
+            name = Component.translatable(stack.getType().translationKey());
+        }
+
+        int amount = stack.getAmount();
+        int max = stack.getMaxStackSize();
         double ratio = max > 0 ? (double) amount / max : 0;
 
         NamedTextColor amountColor;
@@ -177,7 +192,6 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
             amountColor = NamedTextColor.AQUA;
         }
 
-        return item.getItemStack().displayName()
-                .append(Component.text(" x" + amount, amountColor));
+        return name.append(Component.text(" x" + amount, amountColor));
     }
 }
