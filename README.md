@@ -1,4 +1,4 @@
-# ItemNamePlugin
+# ItemName
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -46,7 +46,7 @@ When a named item entity spawns in the world, the plugin spawns an invisible arm
 
 ## Installation
 
-1. Download the latest `itemnameplugin-*.jar` from the [Releases](../../releases) page.
+1. Download the latest `itemname-*.jar` from the [Releases](../../releases) page.
 2. Place the JAR in your server's `plugins/` directory.
 3. Restart your server.
 
@@ -60,7 +60,7 @@ cd ItemNamePlugin
 mvn package
 ```
 
-The compiled JAR will be at `target/ItemNamePlugin-1.0.0.jar`.
+The compiled JAR will be at `target/ItemName-1.0.0.jar`.
 
 ---
 

@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>ItemNamePlugin</artifactId>
+    <artifactId>ItemName</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>ItemNamePlugin</name>
+    <name>ItemName</name>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>

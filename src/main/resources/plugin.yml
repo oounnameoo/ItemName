@@ -1,4 +1,4 @@
-name: ItemNamePlugin
+name: ItemName
 version: '${project.version}'
 main: com.example.itemnameplugin.ItemNamePlugin
 api-version: "26.1"

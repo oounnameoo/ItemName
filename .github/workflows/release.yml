@@ -32,8 +32,8 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: itemnameplugin-jar
-          path: target/ItemNamePlugin-*.jar
+          name: itemname-jar
+          path: target/ItemName-*.jar
           if-no-files-found: error
 
   release:
@@ -61,5 +61,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: target/ItemNamePlugin-*.jar
+          files: target/ItemName-*.jar
           generate_release_notes: true
