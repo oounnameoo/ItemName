@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight Paper plugin that shows an item's **display name** as a floating label above dropped items on the ground.
+A lightweight Paper plugin that shows an item's **display name and stack amount** as a floating label above dropped items on the ground.
 
 ---
 
@@ -11,6 +11,7 @@ A lightweight Paper plugin that shows an item's **display name** as a floating l
 | Feature | Description |
 |---|---|
 | **Floating item labels** | Dropped items with a custom display name show a visible name tag above them. |
+| **Stack amount** | The label also shows the current stack size (e.g., `Diamond x64`). Updates automatically if stacks merge. |
 | **Armor-stand based** | Uses an invisible, marker armor stand so the label is smooth and collision-free. |
 | **Automatic cleanup** | Labels are removed when the item is picked up, despawns, or the plugin disables. |
 | **No configuration needed** | Works out of the box — just drop an item with a name. |
@@ -19,7 +20,7 @@ A lightweight Paper plugin that shows an item's **display name** as a floating l
 
 ## How It Works
 
-When a named item entity spawns in the world, the plugin spawns an invisible armor stand slightly above it and copies the item's display name to the stand's custom name. A tracker task runs every tick to keep the label positioned above the item as it moves.
+When a named item entity spawns in the world, the plugin spawns an invisible armor stand slightly above it and sets the stand's custom name to the item's display name plus its stack amount. A tracker task runs every tick to keep the label positioned above the item and refreshes the amount if stacks merge.
 
 ---
 
@@ -57,7 +58,7 @@ cd ItemNamePlugin
 mvn package
 ```
 
-The compiled JAR will be at `target/itemnameplugin-1.0.0.jar`.
+The compiled JAR will be at `target/ItemNamePlugin-1.0.0.jar`.
 
 ---
 
