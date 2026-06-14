@@ -36,8 +36,8 @@ When a named item entity spawns in the world, the plugin spawns an invisible arm
 | Requirement | Version |
 |---|---|
 | Server software | [Paper](https://papermc.io/downloads/paper) |
-| Minecraft / Paper API | 1.20.4 |
-| Java | 17 |
+| Minecraft / Paper API | 26.1 (Minecraft 1.21.x) |
+| Java | 25 |
 
 ---
 

@@ -13,9 +13,8 @@
     <name>ItemNamePlugin</name>
 
     <properties>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -30,19 +29,28 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <!--
+                Targeting Minecraft 26.1.2 - check papermc.io/downloads/paper
+                for the latest build number if this one is no longer current.
+                NOTE: compiling against this jar requires JDK 25 (class file
+                version 69).
+            -->
+            <version>26.1.2.build.69-stable</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <release>17</release>
+                    <compilerArgs>
+                        <arg>-proc:none</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

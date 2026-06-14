@@ -1,5 +1,5 @@
 name: ItemNamePlugin
 version: '${project.version}'
 main: com.example.itemnameplugin.ItemNamePlugin
-api-version: '1.20'
+api-version: "26.1"
 author: OpenCode
