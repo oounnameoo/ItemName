@@ -1,4 +1,4 @@
-package com.example.itemnameplugin;
+package com.example.itemname;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,9 +27,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ItemNamePlugin extends JavaPlugin implements Listener {
+public class ItemName extends JavaPlugin implements Listener {
 
-    /** Items within this radius (blocks) of a group center are merged into one label. */
+    /** Items within this radius (blocks) of a group member are merged into one label. */
     private static final double GROUP_RADIUS = 2.5;
     private static final double GROUP_RADIUS_SQUARED = GROUP_RADIUS * GROUP_RADIUS;
 
@@ -196,21 +196,36 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
             if (group.itemIds.isEmpty()) {
                 continue;
             }
-            Item representative = (Item) Bukkit.getEntity(group.itemIds.iterator().next());
-            if (representative == null || !representative.isValid()) {
+            if (!groupHasSameItem(group, stack)) {
                 continue;
             }
-            if (representative.getWorld() != loc.getWorld()) {
-                continue;
-            }
-            if (!isSameItem(stack, representative.getItemStack())) {
-                continue;
-            }
-            if (representative.getLocation().distanceSquared(loc) <= GROUP_RADIUS_SQUARED) {
-                return group;
+            for (UUID memberId : group.itemIds) {
+                Item member = (Item) Bukkit.getEntity(memberId);
+                if (member == null || !member.isValid()) {
+                    continue;
+                }
+                if (member.getWorld() != loc.getWorld()) {
+                    continue;
+                }
+                if (member.getLocation().distanceSquared(loc) <= GROUP_RADIUS_SQUARED) {
+                    return group;
+                }
             }
         }
         return null;
+    }
+
+    private boolean groupHasSameItem(Group group, ItemStack stack) {
+        for (UUID memberId : group.itemIds) {
+            Item member = (Item) Bukkit.getEntity(memberId);
+            if (member == null || !member.isValid()) {
+                continue;
+            }
+            if (isSameItem(stack, member.getItemStack())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void removeItemFromGroup(UUID itemId) {
@@ -243,15 +258,9 @@ public class ItemNamePlugin extends JavaPlugin implements Listener {
         }
     }
 
-    /** Two stacks are "the same" for grouping if material and custom name match. */
+    /** Two stacks are "the same" for grouping if type, durability and meta match. */
     private boolean isSameItem(ItemStack a, ItemStack b) {
-        if (a.getType() != b.getType()) {
-            return false;
-        }
-        Component nameA = getBaseName(a);
-        Component nameB = getBaseName(b);
-        return PlainTextComponentSerializer.plainText().serialize(nameA)
-                .equals(PlainTextComponentSerializer.plainText().serialize(nameB));
+        return a.isSimilar(b);
     }
 
     private Location calculateCenter(Set<Item> items) {
