@@ -6,11 +6,12 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -37,13 +38,16 @@ public class ItemName extends JavaPlugin implements Listener {
     private static final double VIEW_DISTANCE = 32.0;
     private static final double VIEW_DISTANCE_SQUARED = VIEW_DISTANCE * VIEW_DISTANCE;
 
-    /** A group of matching dropped items that share one armor-stand label. */
+    /** Vertical offset above the item for the text label. */
+    private static final double LABEL_Y_OFFSET = 0.5;
+
+    /** A group of matching dropped items that share one TextDisplay label. */
     private static final class Group {
-        final UUID standId;
+        final UUID displayId;
         final Set<UUID> itemIds = new HashSet<>();
 
-        Group(UUID standId) {
-            this.standId = standId;
+        Group(UUID displayId) {
+            this.displayId = displayId;
         }
     }
 
@@ -51,8 +55,8 @@ public class ItemName extends JavaPlugin implements Listener {
     private final Map<UUID, UUID> itemToGroup = new ConcurrentHashMap<>();
     /** group UUID -> Group */
     private final Map<UUID, Group> groups = new ConcurrentHashMap<>();
-    /** stand UUID -> group UUID */
-    private final Map<UUID, UUID> standToGroup = new ConcurrentHashMap<>();
+    /** display UUID -> group UUID */
+    private final Map<UUID, UUID> displayToGroup = new ConcurrentHashMap<>();
 
     private BukkitRunnable trackerTask;
 
@@ -69,14 +73,14 @@ public class ItemName extends JavaPlugin implements Listener {
             trackerTask.cancel();
         }
         for (Group group : groups.values()) {
-            Entity entity = Bukkit.getEntity(group.standId);
+            Entity entity = Bukkit.getEntity(group.displayId);
             if (entity != null) {
                 entity.remove();
             }
         }
         itemToGroup.clear();
         groups.clear();
-        standToGroup.clear();
+        displayToGroup.clear();
         getLogger().info("ItemName disabled.");
     }
 
@@ -85,8 +89,8 @@ public class ItemName extends JavaPlugin implements Listener {
             @Override
             public void run() {
                 for (Group group : groups.values()) {
-                    ArmorStand stand = (ArmorStand) Bukkit.getEntity(group.standId);
-                    if (stand == null || !stand.isValid()) {
+                    TextDisplay display = (TextDisplay) Bukkit.getEntity(group.displayId);
+                    if (display == null || !display.isValid()) {
                         disbandGroup(group);
                         continue;
                     }
@@ -106,8 +110,8 @@ public class ItemName extends JavaPlugin implements Listener {
                     }
 
                     if (activeItems.isEmpty()) {
-                        stand.remove();
-                        UUID groupId = standToGroup.remove(group.standId);
+                        display.remove();
+                        UUID groupId = displayToGroup.remove(group.displayId);
                         if (groupId != null) {
                             groups.remove(groupId);
                         }
@@ -116,17 +120,17 @@ public class ItemName extends JavaPlugin implements Listener {
 
                     // Move label to weighted center of the group
                     Location center = calculateCenter(activeItems);
-                    Location target = center.clone().add(0, 0.75, 0);
-                    if (stand.getWorld() != target.getWorld()) {
-                        stand.teleport(target);
-                    } else if (stand.getLocation().distanceSquared(target) > 0.01) {
-                        stand.teleport(target);
+                    Location target = center.clone().add(0, LABEL_Y_OFFSET, 0);
+                    if (display.getWorld() != target.getWorld()) {
+                        display.teleport(target);
+                    } else if (display.getLocation().distanceSquared(target) > 0.01) {
+                        display.teleport(target);
                     }
 
                     // Update combined name and visibility
                     Item representative = activeItems.iterator().next();
-                    stand.customName(getGroupName(representative, totalAmount));
-                    stand.setCustomNameVisible(isGroupNearAnyPlayer(activeItems));
+                    boolean nearPlayer = isGroupNearAnyPlayer(activeItems);
+                    display.text(nearPlayer ? getGroupName(representative, totalAmount) : Component.empty());
                 }
             }
         };
@@ -148,31 +152,29 @@ public class ItemName extends JavaPlugin implements Listener {
         Group group = findNearbyGroup(item);
         if (group != null) {
             group.itemIds.add(item.getUniqueId());
-            itemToGroup.put(item.getUniqueId(), standToGroup.get(group.standId));
+            itemToGroup.put(item.getUniqueId(), displayToGroup.get(group.displayId));
             return;
         }
 
-        // Create a new group with its own armor stand
-        Location loc = item.getLocation().clone().add(0, 0.75, 0);
-        ArmorStand stand = (ArmorStand) item.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
-        stand.setVisible(false);
-        stand.setMarker(true);
-        stand.setSmall(true);
-        stand.setGravity(false);
-        stand.setCanPickupItems(false);
-        stand.customName(getGroupName(stack, stack.getAmount()));
-        stand.setCustomNameVisible(isNearAnyPlayer(item));
-        stand.setInvulnerable(true);
-        stand.setCollidable(false);
-        stand.setPersistent(false);
+        // Create a new group with a TextDisplay label — no flicker, no body, no ArmorStand.
+        Location loc = item.getLocation().clone().add(0, LABEL_Y_OFFSET, 0);
+        boolean nearPlayer = isNearAnyPlayer(item);
+        TextDisplay display = (TextDisplay) item.getWorld().spawnEntity(loc, EntityType.TEXT_DISPLAY);
+        display.text(nearPlayer ? getGroupName(stack, stack.getAmount()) : Component.empty());
+        display.setBillboard(Display.Billboard.CENTER);   // always faces the player
+        display.setDefaultBackground(false);
+        display.setAlignment(TextDisplay.TextAlignment.CENTER);
+        display.setGravity(false);
+        display.setInvulnerable(true);
+        display.setPersistent(false);
 
         UUID groupId = UUID.randomUUID();
-        Group newGroup = new Group(stand.getUniqueId());
+        Group newGroup = new Group(display.getUniqueId());
         newGroup.itemIds.add(item.getUniqueId());
 
         groups.put(groupId, newGroup);
         itemToGroup.put(item.getUniqueId(), groupId);
-        standToGroup.put(stand.getUniqueId(), groupId);
+        displayToGroup.put(display.getUniqueId(), groupId);
     }
 
     @EventHandler
@@ -239,17 +241,17 @@ public class ItemName extends JavaPlugin implements Listener {
         }
         group.itemIds.remove(itemId);
         if (group.itemIds.isEmpty()) {
-            Entity stand = Bukkit.getEntity(group.standId);
-            if (stand != null) {
-                stand.remove();
+            Entity display = Bukkit.getEntity(group.displayId);
+            if (display != null) {
+                display.remove();
             }
-            standToGroup.remove(group.standId);
+            displayToGroup.remove(group.displayId);
             groups.remove(groupId);
         }
     }
 
     private void disbandGroup(Group group) {
-        UUID groupId = standToGroup.remove(group.standId);
+        UUID groupId = displayToGroup.remove(group.displayId);
         if (groupId != null) {
             groups.remove(groupId);
         }
