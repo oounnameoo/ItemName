@@ -30,18 +30,18 @@
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <!--
-                Targeting Minecraft 26.1.2 - check papermc.io/downloads/paper
+                Targeting Minecraft 26.2 - check papermc.io/downloads/paper
                 for the latest build number if this one is no longer current.
                 NOTE: compiling against this jar requires JDK 25 (class file
                 version 69).
             -->
-            <version>26.1.2.build.69-stable</version>
+            <version>26.2.build.25-alpha</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}-26.2</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

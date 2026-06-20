@@ -1,5 +1,5 @@
-name: ItemName
+name: ItemName-26.2
 version: '${project.version}'
 main: com.example.itemname.ItemName
-api-version: "26.1"
+api-version: "26.2"
 author: OpenCode
